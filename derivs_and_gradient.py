@@ -66,24 +66,37 @@ print(grad_descent(x_f2, x_f2_der))
 #####################################################
 #use numpy arrays as vectors. Do not use lists or tuples. It will be counted as invalid solution
 
+
 def num_deriv(func):
     h = 0.00001
-    def deriv_func(args):
-        return (func(np.array([args[0] + h, args[1] + h])) - func(args)) / h
+    def deriv_func(argus):
+        dx = (func(np.array([argus[0] + h, argus[1]])) - func(argus)) / h
+        dy = (func(np.array([argus[0], argus[1] + h])) - func(argus)) / h
+        return np.array([dx, dy])
     return deriv_func
 
 def grad_descent(func):
     func_deriv = num_deriv(func)
-    h = 0.05
-    iters = 100000
+    h = 0.5
+    iters = 1000
     eps = 0.000000001
-    starts_x = np.array([np.linspace(-5, 5, 10)])
-    starts_y = np.array([np.linspace(-5, 5, 10)])
-    for ind, st_x in enumerate(starts_x):
-        f_cur = func(np.array([st_x, starts_y[ind]]))
+    starts_x = np.array(np.linspace(-5, 5, 10))
+    starts_y = np.array(np.linspace(-5, 5, 10))
+    min_xy = np.array([starts_x[0], starts_y[0]])
+    min_f = func(min_xy)
+    for ind in range(len(starts_x)):
+        margs = np.array([starts_x[ind], starts_y[ind]])
+        f_cur = func(margs)
         for i in range(iters):
-            st = st - h * func_deriv(st)
-            if math.fabs(func(st) - f_cur) < eps:
+            margs = margs - h * func_deriv(margs)
+            if math.fabs((func(margs) - f_cur).sum()) < eps:
                 break
-            f_cur = func(st)
-    return 0
+            f_cur = func(margs)
+        if func(margs) < min_f:
+            min_xy = margs
+            min_f = func(margs)
+    return min_xy
+
+def xy_qv(npr):
+    return npr[0]**2 + npr[1]**2
+print(grad_descent(xy_qv))
